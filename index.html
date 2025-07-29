@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oil Trading Dashboard</title>
+    <!-- Fixed Chart.js loading with explicit version -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Fixed Font Awesome with proper integrity check -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js" defer></script>
     <style>
         :root {
             --primary: #1a3a7a;
@@ -737,8 +738,8 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Initialize dashboard when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
+        // Initialize dashboard when all resources are loaded
+        window.addEventListener('load', function() {
             // API Configuration
             const BACKEND_URL = "https://oil-dashboard-backend.onrender.com";
             const PRICES_API = `${BACKEND_URL}/api/prices`;
