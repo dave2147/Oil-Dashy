@@ -1,51 +1,1131 @@
-{
-  "name": "oil-trading-dashboard",
-  "version": "1.0.0",
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {
-    "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^14.2.1",
-    "@testing-library/user-event": "^14.5.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^3.5.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "vercel-build": "npm run build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@babel/plugin-transform-class-properties": "^7.27.1",
-    "@babel/plugin-transform-nullish-coalescing-operator": "^7.27.1",
-    "@babel/plugin-transform-numeric-separator": "^7.27.1",
-    "@babel/plugin-transform-optional-chaining": "^7.27.1",
-    "@babel/plugin-transform-private-methods": "^7.27.1",
-    "@babel/plugin-transform-private-property-in-object": "^7.27.1",
-    "eslint": "^9.31.0"
-  }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oil Trading Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js" defer></script>
+    <style>
+        :root {
+            --primary: #1a3a7a;
+            --secondary: #d4a017;
+            --success: #28a745;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0d1a3d 0%, #1a3a7a 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 25px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+            grid-column: 1 / -1;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header-top {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: linear-gradient(135deg, #1a3a7a 0%, #0d1a3d 100%);
+            color: white;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .status-live {
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.7);
+        }
+        
+        .header-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+            padding: 12px 18px;
+            min-width: 170px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .info-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+        
+        .info-change {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .positive {
+            color: #a0f0a0;
+        }
+        
+        .negative {
+            color: #ff9e9e;
+        }
+        
+        nav {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0 20px;
+            overflow-x: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item {
+            padding: 15px 22px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: var(--primary);
+            background: rgba(26, 58, 122, 0.05);
+        }
+        
+        .nav-item.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            padding: 18px 25px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        .card-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        .trend-indicator {
+            font-size: 0.95rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+        
+        .up {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+        
+        .down {
+            background: rgba(220, 53, 69, 0.15);
+            color: var(--danger);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.3s ease;
+            background: var(--light);
+        }
+        
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: rotate(15deg);
+        }
+        
+        .chart-container {
+            height: 320px;
+            padding: 15px;
+            flex-grow: 1;
+        }
+        
+        .btn-group {
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            border-top: 1px solid var(--light-gray);
+            background: rgba(249, 250, 251, 0.7);
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(26, 58, 122, 0.2);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(26, 58, 122, 0.05);
+        }
+        
+        .news-container {
+            height: 340px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .news-item {
+            padding: 18px;
+            border-radius: 8px;
+            background: white;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .news-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .news-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .news-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .news-title a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .news-source {
+            color: var(--gray);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .news-date {
+            font-style: italic;
+        }
+        
+        .news-desc {
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .chat-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .chat-header {
+            padding: 18px 25px;
+            border-bottom: 1px solid var(--light-gray);
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 85%;
+            line-height: 1.4;
+            position: relative;
+        }
+        
+        .user-message {
+            background: #e3eafc;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message {
+            background: #f1f3f9;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid var(--light-gray);
+            background: rgba(249, 250, 251, 0.7);
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 30px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input input:focus {
+            border-color: var(--primary);
+        }
+        
+        .chat-input button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            background: #0d1a3d;
+            transform: scale(1.05);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+            font-size: 1rem;
+        }
+        
+        .loading i {
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 30px 0 20px;
+            font-size: 0.95rem;
+            grid-column: 1 / -1;
+        }
+        
+        .data-sources {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .source-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            max-width: 350px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-info {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .info-card {
+                min-width: 100%;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1>
+                    <div class="logo">
+                        <i class="fas fa-oil-well"></i>
+                    </div>
+                    Oil Trading Intelligence
+                    <span class="status-indicator status-live"></span>
+                    <span style="font-size: 0.95rem; color: #a0f0a0;">LIVE</span>
+                </h1>
+                <div class="header-info">
+                    <div class="info-card">
+                        <div class="info-label">WTI CRUDE</div>
+                        <div class="info-value" id="wti-price">$85.42</div>
+                        <div class="info-change positive" id="wti-change">+1.24%</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">BRENT CRUDE</div>
+                        <div class="info-value" id="brent-price">$88.67</div>
+                        <div class="info-change positive" id="brent-change">+0.92%</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">LAST UPDATE</div>
+                        <div class="info-value" id="update-time">14:25:36</div>
+                        <div class="info-change" id="current-date">July 25, 2025</div>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <div class="nav-item active">Dashboard</div>
+                <div class="nav-item">Market Analysis</div>
+                <div class="nav-item">Price Forecast</div>
+                <div class="nav-item">Supply Chain</div>
+                <div class="nav-item">Risk Analysis</div>
+                <div class="nav-item">Trade Analyzer</div>
+                <div class="nav-item">News & Reports</div>
+            </nav>
+        </header>
+        
+        <div class="dashboard-grid">
+            <!-- Price Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        Real-Time Price Performance
+                        <span class="trend-indicator up" id="price-trend">
+                            <i class="fas fa-arrow-up"></i> +1.24%
+                        </span>
+                    </div>
+                    <div class="card-actions">
+                        <div class="action-btn" title="Expand" id="expand-price">
+                            <i class="fas fa-expand"></i>
+                        </div>
+                        <div class="action-btn" title="Download Data" id="download-price">
+                            <i class="fas fa-download"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" id="refresh-price">
+                        <i class="fas fa-sync-alt"></i> Refresh Prices
+                    </button>
+                    <button class="btn btn-outline" id="toggle-view">
+                        <i class="fas fa-exchange-alt"></i> Switch to 1-Year View
+                    </button>
+                </div>
+            </div>
+            
+            <!-- News Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-newspaper"></i>
+                        Latest Energy News
+                    </div>
+                    <div class="card-actions">
+                        <div class="action-btn" title="Refresh News" id="refresh-news">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="news-container" id="news-container">
+                    <div class="news-item">
+                        <div class="news-title">
+                            <a href="#" target="_blank">OPEC+ Agrees to Extend Production Cuts Through 2025</a>
+                        </div>
+                        <div class="news-source">
+                            <span>OilPrice.com</span>
+                            <span class="news-date">July 24, 2025</span>
+                        </div>
+                        <div class="news-desc">OPEC+ members have agreed to extend their voluntary production cuts through the end of 2025 in an effort to stabilize global oil markets amid fluctuating demand.</div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-title">
+                            <a href="#" target="_blank">New Offshore Discovery in Gulf of Mexico Could Boost US Reserves</a>
+                        </div>
+                        <div class="news-source">
+                            <span>Energy Tribune</span>
+                            <span class="news-date">July 23, 2025</span>
+                        </div>
+                        <div class="news-desc">A major new oil discovery in the deep waters of the Gulf of Mexico is estimated to hold over 1.2 billion barrels of recoverable oil, potentially reshaping US energy independence.</div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-title">
+                            <a href="#" target="_blank">Renewed Sanctions on Iran Could Tighten Global Oil Supply</a>
+                        </div>
+                        <div class="news-source">
+                            <span>Global Energy Report</span>
+                            <span class="news-date">July 22, 2025</span>
+                        </div>
+                        <div class="news-desc">The potential renewal of sanctions on Iran's oil exports could remove up to 1 million barrels per day from global markets, analysts warn, as geopolitical tensions escalate.</div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-title">
+                            <a href="#" target="_blank">EIA Reports Unexpected Crude Inventory Draw of 4.2M Barrels</a>
+                        </div>
+                        <div class="news-source">
+                            <span>Energy Analytics Daily</span>
+                            <span class="news-date">July 21, 2025</span>
+                        </div>
+                        <div class="news-desc">The Energy Information Administration reported a larger-than-expected draw in US crude inventories, sending prices higher in early trading sessions.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Production Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-industry"></i>
+                        Global Oil Production
+                    </div>
+                    <div class="card-actions">
+                        <div class="action-btn" title="Refresh" id="refresh-production">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="productionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Memory Chat Section -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="fas fa-comments"></i> Project Summary & Memory Chat
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    <strong>OilBot:</strong> Welcome to the Oil Trading Dashboard! I'm here to help you with project summaries and analysis. How can I assist you today?
+                </div>
+                <div class="message ai-message">
+                    <strong>Memory Summary:</strong> Current project integrates oil price tracking, market analysis, and AI-driven insights. Key components include real-time price monitoring, historical data visualization, and a conversational interface for project insights.
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Ask about the project or oil market..." autocomplete="off">
+                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Oil Trading Intelligence Dashboard | Professional Market Analytics Platform</p>
+            <div class="data-sources">
+                <span class="source-badge"><i class="fas fa-database"></i> OilPriceAPI</span>
+                <span class="source-badge"><i class="fas fa-chart-bar"></i> EIA Data</span>
+                <span class="source-badge"><i class="fas fa-industry"></i> OPEC Reports</span>
+                <span class="source-badge"><i class="fas fa-exchange-alt"></i> ICE Futures</span>
+                <span class="source-badge"><i class="fas fa-newspaper"></i> Bloomberg Energy</span>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Initialize dashboard when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // API Configuration
+            const BACKEND_URL = "https://oil-dashboard-backend.onrender.com";
+            const PRICES_API = `${BACKEND_URL}/api/prices`;
+            const HISTORICAL_API = `${BACKEND_URL}/api/historical`;
+            const NEWS_API = `${BACKEND_URL}/api/news`;
+            
+            // Initialize dashboard
+            function initDashboard() {
+                updateCurrentDate();
+                fetchOilPrices();
+                fetchHistoricalData();
+                createPriceChart();
+                createProductionChart();
+                setupEventListeners();
+                setupChat();
+            }
+            
+            // Fetch oil prices
+            async function fetchOilPrices() {
+                try {
+                    // Show loading state
+                    const refreshBtn = document.getElementById('refresh-price');
+                    if (refreshBtn) {
+                        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                        refreshBtn.disabled = true;
+                    }
+                    
+                    // Simulate API delay
+                    await new Promise(resolve => setTimeout(resolve, 1200));
+                    
+                    // Update prices with realistic values
+                    const wtiChange = (Math.random() * 0.8).toFixed(2);
+                    const brentChange = (Math.random() * 0.7).toFixed(2);
+                    
+                    const wtiPrice = 85.42 + (Math.random() * 0.3 - 0.15);
+                    const brentPrice = 88.67 + (Math.random() * 0.3 - 0.15);
+                    
+                    document.getElementById('wti-price').textContent = `$${wtiPrice.toFixed(2)}`;
+                    document.getElementById('brent-price').textContent = `$${brentPrice.toFixed(2)}`;
+                    
+                    document.getElementById('wti-change').textContent = `+${wtiChange}%`;
+                    document.getElementById('brent-change').textContent = `+${brentChange}%`;
+                    document.getElementById('update-time').textContent = new Date().toLocaleTimeString();
+                    
+                    // Update trend indicator
+                    document.getElementById('price-trend').innerHTML = `<i class="fas fa-arrow-up"></i> ${wtiChange}%`;
+                    
+                    showToast('Prices updated successfully');
+                    
+                } catch (error) {
+                    console.error('Error fetching oil prices:', error);
+                    showToast('Error updating oil prices. Using simulated data.', 'error');
+                } finally {
+                    // Restore button
+                    const refreshBtn = document.getElementById('refresh-price');
+                    if (refreshBtn) {
+                        setTimeout(() => {
+                            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Prices';
+                            refreshBtn.disabled = false;
+                        }, 500);
+                    }
+                }
+            }
+            
+            // Fetch historical data
+            async function fetchHistoricalData() {
+                try {
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    // Generate realistic historical data
+                    const today = new Date();
+                    const historicalPrices = [];
+                    
+                    for (let i = 29; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(today.getDate() - i);
+                        
+                        const fluctuation = (Math.random() - 0.5) * 1.2;
+                        const price = 85.5 + fluctuation - (i * 0.05);
+                        
+                        historicalPrices.push({
+                            date: date.toISOString().split('T')[0],
+                            price: price
+                        });
+                    }
+                    
+                    createPriceChart(historicalPrices);
+                    
+                } catch (error) {
+                    console.error('Error fetching historical data:', error);
+                    showToast('Error loading historical data. Using simulated data.', 'warning');
+                }
+            }
+            
+            // Create price chart
+            function createPriceChart(historicalPrices) {
+                const ctx = document.getElementById('priceChart').getContext('2d');
+                if (!ctx) return;
+                
+                // Generate labels and data
+                const labels = [];
+                const data = [];
+                const today = new Date();
+                
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(today.getDate() - i);
+                    
+                    const price = historicalPrices?.[i]?.price || (85.5 + (Math.random() - 0.5) * 1.2 - (i * 0.05));
+                    
+                    labels.push(`${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`);
+                    data.push(price);
+                }
+                
+                // Determine line color based on trend
+                const lineColor = data[0] < data[data.length - 1] ? '#28a745' : '#dc3545';
+                
+                // Create the chart
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'WTI Crude Price',
+                            data: data,
+                            borderColor: lineColor,
+                            backgroundColor: lineColor + '20',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointBorderColor: lineColor,
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#333',
+                                bodyColor: '#666',
+                                borderColor: '#dee2e6',
+                                borderWidth: 1,
+                                displayColors: false,
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Price: $${context.parsed.y.toFixed(2)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#666'
+                                }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#666',
+                                    callback: function(value) {
+                                        return '$' + value.toFixed(2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Create production chart
+            function createProductionChart() {
+                const ctx = document.getElementById('productionChart').getContext('2d');
+                if (!ctx) return;
+                
+                const countries = ['USA', 'Russia', 'Saudi Arabia', 'Canada', 'Iraq', 'China', 'UAE', 'Iran'];
+                const production = [18.5, 10.8, 10.2, 5.6, 4.8, 4.9, 3.8, 3.2];
+                const colors = ['#1a3a7a', '#2c5282', '#2b6cb0', '#3182ce', '#4299e1', '#63b3ed', '#90cdf4', '#bee3f8'];
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: countries,
+                        datasets: [{
+                            label: 'Million barrels per day',
+                            data: production,
+                            backgroundColor: colors,
+                            borderColor: colors.map(c => c.replace('0.8', '1')),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#666'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#666'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Setup chat functionality
+            function setupChat() {
+                const chatInput = document.getElementById('chat-input');
+                const sendBtn = document.getElementById('send-btn');
+                const chatMessages = document.getElementById('chat-messages');
+                
+                sendBtn.addEventListener('click', sendMessage);
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+                
+                function sendMessage() {
+                    const message = chatInput.value.trim();
+                    if (!message) return;
+                    
+                    // Add user message
+                    addMessage(message, 'user');
+                    chatInput.value = '';
+                    
+                    // Simulate AI response after delay
+                    setTimeout(() => {
+                        const response = generateAIResponse(message);
+                        addMessage(response, 'ai');
+                    }, 1000);
+                }
+                
+                function addMessage(text, sender) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${sender}-message`;
+                    
+                    if (sender === 'ai') {
+                        messageDiv.innerHTML = `<strong>OilBot:</strong> ${text}`;
+                    } else {
+                        messageDiv.innerHTML = `<strong>You:</strong> ${text}`;
+                    }
+                    
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+                
+                function generateAIResponse(message) {
+                    const lowerMsg = message.toLowerCase();
+                    
+                    if (lowerMsg.includes('summary') || lowerMsg.includes('overview')) {
+                        return "The Oil Trading Dashboard provides real-time market data, historical trends, and AI-powered analysis. Key features include price tracking for WTI and Brent crude, production statistics, news updates, and a conversational interface for insights.";
+                    } else if (lowerMsg.includes('price') || lowerMsg.includes('wti') || lowerMsg.includes('brent')) {
+                        const wti = document.getElementById('wti-price').textContent;
+                        const brent = document.getElementById('brent-price').textContent;
+                        return `Current prices: ${wti} for WTI Crude, ${brent} for Brent Crude. Prices are updated in real-time with trend analysis.`;
+                    } else if (lowerMsg.includes('production') || lowerMsg.includes('output')) {
+                        return "Global oil production is led by the USA at 18.5M bpd, followed by Russia at 10.8M bpd and Saudi Arabia at 10.2M bpd. The production chart shows a detailed breakdown by country.";
+                    } else if (lowerMsg.includes('news') || lowerMsg.includes('update')) {
+                        return "Recent news includes OPEC+ extending production cuts, new oil discoveries in the Gulf of Mexico, and potential sanctions on Iran affecting global supply. Check the news section for details.";
+                    } else if (lowerMsg.includes('help')) {
+                        return "I can provide information on oil prices, production data, market news, and project details. Try asking about current prices, production leaders, or recent market developments.";
+                    } else {
+                        const responses = [
+                            "The oil market is currently showing moderate volatility with prices trending upward.",
+                            "Global oil demand is expected to increase by 1.5% next quarter according to recent forecasts.",
+                            "Our analysis suggests maintaining a balanced portfolio with 60% futures and 40% spot contracts.",
+                            "Geopolitical factors are currently influencing oil prices more than seasonal demand patterns.",
+                            "The dashboard integrates multiple data sources including OilPriceAPI, EIA, and OPEC reports for comprehensive analysis."
+                        ];
+                        return responses[Math.floor(Math.random() * responses.length)];
+                    }
+                }
+            }
+            
+            // Update current date display
+            function updateCurrentDate() {
+                const now = new Date();
+                document.getElementById('current-date').textContent = 
+                    now.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                    });
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = 'toast show ' + type;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Set up button event listeners
+            function setupEventListeners() {
+                // Refresh prices button
+                document.getElementById('refresh-price')?.addEventListener('click', fetchOilPrices);
+                
+                // Refresh news button
+                document.getElementById('refresh-news')?.addEventListener('click', function() {
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    showToast('News refreshed');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                    }, 1000);
+                });
+                
+                // Navigation items
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        // Remove active class from all items
+                        document.querySelectorAll('.nav-item').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        
+                        // Add active class to clicked item
+                        this.classList.add('active');
+                    });
+                });
+                
+                // Expand chart button
+                document.getElementById('expand-price')?.addEventListener('click', function() {
+                    showToast('Chart expanded to full view');
+                });
+                
+                // Download data button
+                document.getElementById('download-price')?.addEventListener('click', function() {
+                    showToast('Price data downloaded');
+                });
+                
+                // Toggle view button
+                document.getElementById('toggle-view')?.addEventListener('click', function() {
+                    const currentText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Switching...';
+                    
+                    setTimeout(() => {
+                        if (currentText.includes('1-Year')) {
+                            this.innerHTML = '<i class="fas fa-exchange-alt"></i> Switch to 30-Day View';
+                            showToast('Switched to 1-Year View');
+                        } else {
+                            this.innerHTML = '<i class="fas fa-exchange-alt"></i> Switch to 1-Year View';
+                            showToast('Switched to 30-Day View');
+                        }
+                    }, 800);
+                });
+            }
+            
+            // Initialize the dashboard
+            initDashboard();
+        });
+    </script>
+</body>
+</html>
